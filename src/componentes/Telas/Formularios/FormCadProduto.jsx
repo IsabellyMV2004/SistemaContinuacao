@@ -3,6 +3,8 @@ import { Button, Spinner, Col, Form, InputGroup,
  } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 import { consultarCategoria } from '../../../servicos/servicoCategoria';
+import { gravarProduto } from '../../../servicos/servicoProduto';
+
 import toast, {Toaster} from 'react-hot-toast';
 
 export default function FormCadProdutos(props) {
@@ -26,6 +28,14 @@ export default function FormCadProdutos(props) {
         });
         
     },[]); //didMount
+    
+    function selecionarCategoria(evento){
+        setProduto({...produto, 
+                        categoria:{
+                            codigo: evento.currentTarget.value
+
+                        }});
+    }
 
     function manipularSubmissao(evento) {
         const form = evento.currentTarget;
@@ -33,8 +43,20 @@ export default function FormCadProdutos(props) {
 
             if (!props.modoEdicao) {
                 //cadastrar o produto
-                props.setListaDeProdutos([...props.listaDeProdutos, produto]);
-                //exibir tabela com o produto incluído
+                gravarProduto(produto)
+                .then((resposta)=>{
+                    return resposta.json;
+                })
+                .then((resultado)=>{
+                    if(resultado.status){
+                        //exibir tabela com o produto incluído
+                        props.setExibirTabela(true);
+                    }
+                    else{
+                        toast.error(resultado.mensagem);
+                    }
+                });
+                
                 props.setExibirTabela(true);
             }
             else {
@@ -199,7 +221,9 @@ export default function FormCadProdutos(props) {
                 </Form.Group>
                 <Form.Group as={Col} md={7}>
                     <Form.Label>Categoria:</Form.Label>
-                    <Form.Select id='categoria' name='categoria'>
+                    <Form.Select id='categoria'
+                                 name='categoria'
+                                 onChange={selecionarCategoria}>
                         {// criar em tempo de execução as categorias existentes no banco de dados
                             categorias.map((categoria) =>{
                                 return <option value={categoria.codigo}>
