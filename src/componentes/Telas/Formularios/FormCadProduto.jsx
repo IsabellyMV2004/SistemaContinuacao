@@ -44,9 +44,6 @@ export default function FormCadProdutos(props) {
             if (!props.modoEdicao) {
                 //cadastrar o produto
                 gravarProduto(produto)
-                .then((resposta)=>{
-                    return resposta.json;
-                })
                 .then((resultado)=>{
                     if(resultado.status){
                         //exibir tabela com o produto incluído
